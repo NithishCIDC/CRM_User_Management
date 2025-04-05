@@ -9,5 +9,7 @@ namespace CRM_User.Domain.Interface
     public interface IUnitOfWork
     {
         IUserRepository UserRepository { get; }
+        IBranchRepository BranchRepository { get; }
+        IOrganizationRepository OrganizationRepository { get; }
     }
 }

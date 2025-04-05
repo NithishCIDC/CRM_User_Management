@@ -1,20 +1,20 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CRM_User.Domain.Model
+namespace CRM_User.Application.DTO
 {
-    public class Branch : BaseModel
+    public class UpdateBranchDTO
     {
+        public Guid Id { get; set; }
+        public string? Email { get; set; }
+        public string? Phone { get; set; }
         public string? BranchName { get; set; }
         public string? Address { get; set; }
         public string? State { get; set; }
         public string? Country { get; set; }
         public Guid OrganizationId { get; set; }
-        public Organization? Organization { get; set; }
-        public ICollection<User>? Users { get; set; }
     }
 }

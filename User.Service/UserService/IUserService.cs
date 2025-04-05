@@ -7,7 +7,7 @@ namespace CRM_User.Service.UserService
         Task<bool> CreateUser(User entity);
         Task<User?> GetUserById(Guid id);
         Task<List<User>> GetAllUser();
-        bool UpdateUser(User entity);
-        bool DeleteUser(Guid id);
+        Task<bool> UpdateUser(User entity);
+        Task<bool> DeleteUser(Guid id);
     }
 }

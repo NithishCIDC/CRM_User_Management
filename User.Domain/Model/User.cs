@@ -1,4 +1,5 @@
 ﻿using CRM_User.Domain.Enum;
+using Microsoft.AspNetCore.Http;
 
 namespace CRM_User.Domain.Model
 {

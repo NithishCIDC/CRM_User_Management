@@ -14,13 +14,13 @@ namespace CRM_User.infrastructure.Repository
             return true;
         }
 
-        public bool DeleteUser(Guid id)
+        public async Task<bool> DeleteUser(Guid id)
         {
             var entity = _dbContext.Users.FirstOrDefault(x => x.Id == id);
             if (entity != null)
             { 
                 _dbContext.Users.Remove(entity);
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
                 return true;
             }
             return false;
@@ -36,10 +36,10 @@ namespace CRM_User.infrastructure.Repository
            return await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public bool UpdateUser(User entity)
+        public async Task<bool> UpdateUser(User entity)
         {
             _dbContext.Users.Update(entity);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
             return true;
         }
     }

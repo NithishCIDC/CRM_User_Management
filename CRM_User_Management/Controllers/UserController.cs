@@ -57,7 +57,7 @@ namespace CRM_User.Web.Controllers
             }
         }
 
-        [HttpGet("GetAllUser")]
+        [HttpGet]
         public async Task<IActionResult> GetAllUser()
         {
             try
@@ -76,13 +76,13 @@ namespace CRM_User.Web.Controllers
         }
 
         [HttpPut]
-        public IActionResult UpdateUser(User entity)
+        public async Task<IActionResult> UpdateUser(UpdateDTO entity)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    bool result = _userService.UpdateUser(entity);
+                    bool result = await _userService.UpdateUser(entity.Adapt<User>());
                     return result
                     ? Ok(new ResponseDTO { Success = true, Message = "User updated Successfully" })
                     : BadRequest(new ResponseDTO { Success = false, Message = "User Update Failed" });
@@ -99,13 +99,13 @@ namespace CRM_User.Web.Controllers
         }
 
         [HttpDelete("{id:Guid}")]
-        public IActionResult DeleteUser(Guid id)
+        public async Task<IActionResult> DeleteUser(Guid id)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    bool result = _userService.DeleteUser(id);
+                    bool result = await _userService.DeleteUser(id);
                     return result
                     ? Ok(new ResponseDTO { Success = true, Message = "User deleted Successfully" })
                     : BadRequest(new ResponseDTO { Success = false, Message = "User Deletion Failed" });

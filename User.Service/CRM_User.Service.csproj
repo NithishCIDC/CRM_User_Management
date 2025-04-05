@@ -7,7 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mapster" Version="7.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\User.Application\CRM_User.Application.csproj" />
     <ProjectReference Include="..\User.Domain\CRM_User.Domain.csproj" />
+    <ProjectReference Include="..\User.infrastructure\CRM_User.infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

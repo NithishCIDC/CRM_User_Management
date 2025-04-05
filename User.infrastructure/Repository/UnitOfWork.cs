@@ -9,8 +9,20 @@ using System.Threading.Tasks;
 
 namespace CRM_User.infrastructure.Repository
 {
-    public class UnitOfWork(ApplicationDbContext dbContext) : IUnitOfWork
+    public class UnitOfWork : IUnitOfWork
     {
-        public IUserRepository UserRepository { get; private set; } = new UserRepository(dbContext); 
+        private readonly ApplicationDbContext _dbContext;
+        public UnitOfWork(ApplicationDbContext dbContext)
+        {
+            _dbContext = dbContext;
+            UserRepository = new UserRepository(_dbContext);
+            BranchRepository = new BranchRepository(_dbContext);
+            OrganizationRepository = new OrganizationRepository(_dbContext);
+        }
+        public IUserRepository UserRepository { get; private set; }
+        public IBranchRepository BranchRepository { get; private set; }
+        public IOrganizationRepository OrganizationRepository { get; private set; }
+
+        
     }
 }
