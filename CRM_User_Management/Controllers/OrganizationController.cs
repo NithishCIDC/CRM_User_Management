@@ -31,20 +31,20 @@ namespace CRM_User.Web.Controllers
                     var organization = _organizationservice.GetByEmail(entity.Email!);
                     if (organization is not null)
                     {
-                        return BadRequest(new AuthResponseError { Error = "Organization Already Exist" });
+                        return BadRequest(new ResponseError { Error = "Organization Already Exist" });
                     }
                     else
                     {
                         await _organizationservice.AddOrganization(entity);
-                        return Accepted(new AuthResponseSuccess { Message = "Organization Successfully Created" });
+                        return Accepted(new ResponseSuccess { Message = "Organization Successfully Created" });
                     }
 
                 }
-                return BadRequest(new AuthResponseError { Error = "Invalid Request" });
+                return BadRequest(new ResponseError { Error = "Invalid Request" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new AuthResponseError { Error = ex + " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
 
@@ -56,16 +56,16 @@ namespace CRM_User.Web.Controllers
         {
             try
             {
-                var organization = await _organizationservice.GetAll();
-                if(organization != null)
+                var organizations = await _organizationservice.GetAll();
+                if (organizations != null)
                 {
-                    return Ok(organization);
+                    return Ok(new ResponseSuccess { Message = "Data fetched Successfully", Data = organizations });
                 }
-                return BadRequest(new AuthResponseError { Error = "No Organization Found" });
+                return BadRequest(new ResponseError { Error = "No Organization Found" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new AuthResponseError { Error = ex + " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
 
@@ -80,13 +80,13 @@ namespace CRM_User.Web.Controllers
                 var organization = await _organizationservice.GetById(id);
                 if (organization != null)
                 {
-                    return Ok(organization);
+                    return Ok(new ResponseSuccess { Message = "Data fetched Successfully", Data = organization });
                 }
-                return BadRequest(new AuthResponseError { Error = "Organization Not Found" });
+                return BadRequest(new ResponseError { Error = "Organization Not Found" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new AuthResponseError { Error = ex + " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
 
@@ -104,15 +104,15 @@ namespace CRM_User.Web.Controllers
                     if (organization is not null)
                     {
                         await _organizationservice.UpdateOrganization(entity);
-                        return Accepted(new AuthResponseSuccess { Message = "Organization Successfully Updated" });
+                        return Accepted(new ResponseSuccess { Message = "Organization Successfully Updated" });
                     }
-                    return BadRequest(new AuthResponseError { Error = "Organization Not Found" });
+                    return BadRequest(new ResponseError { Error = "Organization Not Found" });
                 }
-                return BadRequest(new AuthResponseError { Error = "Invalid Request" });
+                return BadRequest(new ResponseError { Error = "Invalid Request" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new AuthResponseError { Error = ex + " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
 
@@ -128,13 +128,13 @@ namespace CRM_User.Web.Controllers
                 if (organization is not null)
                 {
                     await _organizationservice.DeleteOrganization(organization);
-                    return Ok(new AuthResponseSuccess { Message = "Organization Successfully Deleted" });
+                    return Ok(new ResponseSuccess { Message = "Organization Successfully Deleted" });
                 }
-                return BadRequest(new AuthResponseError { Error = "Organization Not Found" });
+                return BadRequest(new ResponseError { Error = "Organization Not Found" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new AuthResponseError { Error = ex + " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
     }

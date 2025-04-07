@@ -26,7 +26,7 @@ namespace CRM_User.Service.UserService
 
         public async Task<bool> DeleteUser(Guid id)
         {
-           return await _unitOfWork.UserRepository.Delete(id);
+            return await _unitOfWork.UserRepository.Delete(id);
         }
 
         public async Task<List<User>> GetAllUser()
@@ -44,6 +44,10 @@ namespace CRM_User.Service.UserService
             entity.Updated_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)!.Value;
             entity.Updated_At = DateTime.UtcNow.AddHours(5).AddMinutes(30);
             return await _unitOfWork.UserRepository.Update(entity);
+        }
+        public async Task<User?> GetByEmail(string email)
+        {
+            return await _unitOfWork.UserRepository.GetByEmail(email);
         }
     }
 }

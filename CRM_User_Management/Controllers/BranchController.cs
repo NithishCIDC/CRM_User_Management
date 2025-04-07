@@ -29,15 +29,15 @@ namespace CRM_User.Web.Controllers
                     if (response == null)
                     {
                         await _branchService.AddBranch(branch);
-                        return Accepted(new AuthResponseSuccess { Message = "Branch is Created"});
+                        return Accepted(new ResponseSuccess { Message = "Branch is Created" });
                     }
-                    return BadRequest(new AuthResponseError { Error = "Branch already exists" });
+                    return BadRequest(new ResponseError { Error = "Branch already exists" });
                 }
-                return BadRequest(new AuthResponseError { Error = "Invalid Data" });
+                return BadRequest(new ResponseError { Error = "Invalid Data" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new AuthResponseError { Error = ex + " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
         [HttpGet]
@@ -51,13 +51,13 @@ namespace CRM_User.Web.Controllers
                 var response = await _branchService.GetAll();
                 if (response != null)
                 {
-                    return Ok(response);
+                    return Ok(new ResponseSuccess { Message = "Data fetched Successfully", Data = response });
                 }
-                return BadRequest(new AuthResponseError { Error = "No Branch Found" });
+                return BadRequest(new ResponseError { Error = "No Branch Found" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new AuthResponseError { Error = ex + " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
         [HttpGet("GetBranchById")]
@@ -71,13 +71,13 @@ namespace CRM_User.Web.Controllers
                 var response = await _branchService.GetById(id);
                 if (response != null)
                 {
-                    return Ok(response);
+                    return Ok(new ResponseSuccess { Message = "Data fetched Successfully", Data = response });
                 }
-                return BadRequest(new AuthResponseError { Error = "No Branch Found" });
+                return BadRequest(new ResponseError { Error = "No Branch Found" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new AuthResponseError { Error = ex + " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
         [HttpPut("UpdateBranch")]
@@ -91,13 +91,13 @@ namespace CRM_User.Web.Controllers
                 if (ModelState.IsValid)
                 {
                     await _branchService.UpdateBranch(branch);
-                    return Accepted(new AuthResponseSuccess { Message = "Branch is Updated" });
+                    return Accepted(new ResponseSuccess { Message = "Branch is Updated" });
                 }
-                return BadRequest(new AuthResponseError { Error = "Invalid Data" });
+                return BadRequest(new ResponseError { Error = "Invalid Data" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new AuthResponseError { Error = ex + " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
         [HttpDelete("DeleteBranch")]
@@ -112,13 +112,13 @@ namespace CRM_User.Web.Controllers
                 if (response != null)
                 {
                     await _branchService.DeleteBranch(response);
-                    return Ok(new AuthResponseSuccess { Message = "Branch is Deleted" });
+                    return Ok(new ResponseSuccess { Message = "Branch is Deleted" });
                 }
-                return BadRequest(new AuthResponseError { Error = "No Branch Found" });
+                return BadRequest(new ResponseError { Error = "No Branch Found" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new AuthResponseError { Error = ex + " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
     }
