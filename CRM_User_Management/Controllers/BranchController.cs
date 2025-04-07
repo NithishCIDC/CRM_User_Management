@@ -17,7 +17,7 @@ namespace CRM_User.Web.Controllers
             _branchService = branchService;
         }
 
-        [HttpPost("CreateBranch")]
+        [HttpPost()]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -48,7 +48,7 @@ namespace CRM_User.Web.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet()]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -72,7 +72,7 @@ namespace CRM_User.Web.Controllers
             }
         }
 
-        [HttpGet("GetBranchById")]
+        [HttpGet("{Id:Guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -96,7 +96,7 @@ namespace CRM_User.Web.Controllers
             }
         }
 
-        [HttpPut("UpdateBranch")]
+        [HttpPut()]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -120,7 +120,7 @@ namespace CRM_User.Web.Controllers
             }
         }
 
-        [HttpDelete("DeleteBranch")]
+        [HttpDelete()]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

@@ -13,7 +13,7 @@ namespace CRM_User.Web.Controllers
     [Authorize]
     public class UserController(IUserService _userService) : ControllerBase
     {
-        [HttpPost]
+        [HttpPost()]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -60,7 +60,7 @@ namespace CRM_User.Web.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet()]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -81,7 +81,7 @@ namespace CRM_User.Web.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPut()]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

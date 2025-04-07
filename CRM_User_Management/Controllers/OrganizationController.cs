@@ -19,7 +19,7 @@ namespace CRM_User.Web.Controllers
             _organizationservice = organizationservice;
         }
 
-        [HttpPost("CreateOrganization")]
+        [HttpPost()]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -53,7 +53,7 @@ namespace CRM_User.Web.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet()]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -77,7 +77,7 @@ namespace CRM_User.Web.Controllers
             }
         }
 
-        [HttpGet("GetOrganization/{id}")]
+        [HttpGet("{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -89,7 +89,6 @@ namespace CRM_User.Web.Controllers
                 if (organization != null)
                 {
                     Log.Information("Organization Retrieved Successfully");
-                    return Ok(organization);
                     return Ok(new ResponseSuccess { Message = "Data fetched Successfully", Data = organization });
                 }
                 Log.Warning("Organization Not Found");
@@ -102,7 +101,7 @@ namespace CRM_User.Web.Controllers
             }
         }
 
-        [HttpPut("UpdateOrganization")]
+        [HttpPut()]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -132,7 +131,7 @@ namespace CRM_User.Web.Controllers
             }
         }
 
-        [HttpDelete("DeleteOrganization")]
+        [HttpDelete()]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
