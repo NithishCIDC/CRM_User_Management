@@ -1,5 +1,6 @@
 ﻿using CRM_User.Application.DTO;
 using CRM_User.Service.OrganizationService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -7,6 +8,7 @@ namespace CRM_User.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class OrganizationController : ControllerBase
     {
         private readonly IOrganizationService _organizationservice;

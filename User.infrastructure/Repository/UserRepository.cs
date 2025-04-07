@@ -5,8 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CRM_User.infrastructure.Repository
 {
-    public class UserRepository(ApplicationDbContext _dbContext) : IUserRepository
+    public class UserRepository(ApplicationDbContext dbContext) : GenericRepository<User>(dbContext) ,IUserRepository
     {
+        private readonly ApplicationDbContext _dbContext = dbContext;
+
         public async Task<bool> CreateUser(User entity)
         {
             await _dbContext.Users.AddAsync(entity);

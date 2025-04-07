@@ -5,11 +5,13 @@ using CRM_User.Domain.Model;
 using CRM_User.Application.DTO;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CRM_User.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UserController(IUserService _userService) : ControllerBase
     {
         [HttpPost]
@@ -22,11 +24,8 @@ namespace CRM_User.Web.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    bool result = await _userService.CreateUser(entity.Adapt<User>());
-
-                    return result
-                    ? Ok(new ResponseDTO { Success = true, Message = "User created Successfully" })
-                    : BadRequest(new ResponseDTO { Success = false, Message = "User Creation Failed" });
+                    await _userService.CreateUser(entity.Adapt<User>());
+                    return Ok(new ResponseDTO { Success = true, Message = "User created Successfully" });
                 }
                 else
                 {

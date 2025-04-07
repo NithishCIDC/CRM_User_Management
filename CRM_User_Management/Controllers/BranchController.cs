@@ -1,11 +1,13 @@
 ﻿using CRM_User.Application.DTO;
 using CRM_User.Service.BranchService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CRM_User.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class BranchController : ControllerBase
     {
         private readonly IBranchService _branchService;

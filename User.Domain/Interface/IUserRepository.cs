@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CRM_User.Domain.Interface
 {
-    public interface IUserRepository
+    public interface IUserRepository : IGenericRepository<User>
     {
         Task<bool> CreateUser(User entity);
         Task<User?> GetUserById(Guid id);

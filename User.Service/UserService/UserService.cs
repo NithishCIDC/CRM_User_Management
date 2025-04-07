@@ -17,33 +17,33 @@ namespace CRM_User.Service.UserService
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<bool> CreateUser(User entity)
+        public async Task CreateUser(User entity)
         {
             entity.Created_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)!.Value;
             entity.Created_At = DateTime.UtcNow.AddHours(5).AddMinutes(30);
-            return await _unitOfWork.UserRepository.CreateUser(entity);
+            await _unitOfWork.UserRepository.Add(entity);
         }
 
         public async Task<bool> DeleteUser(Guid id)
         {
-            return await _unitOfWork.UserRepository.DeleteUser(id);
+           return await _unitOfWork.UserRepository.Delete(id);
         }
 
         public async Task<List<User>> GetAllUser()
         {
-            return await _unitOfWork.UserRepository.GetAllUser();
+            return await _unitOfWork.UserRepository.GetAll();
         }
 
         public async Task<User?> GetUserById(Guid id)
         {
-            return await _unitOfWork.UserRepository.GetUserById(id);
+            return await _unitOfWork.UserRepository.GetById(id);
         }
 
         public async Task<bool> UpdateUser(User entity)
         {
             entity.Updated_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)!.Value;
             entity.Updated_At = DateTime.UtcNow.AddHours(5).AddMinutes(30);
-            return await _unitOfWork.UserRepository.UpdateUser(entity);
-        } 
+            return await _unitOfWork.UserRepository.Update(entity);
+        }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using CRM_User.Domain.Enum;
-using Microsoft.AspNetCore.Http;
+using System.Text.Json.Serialization;
 
 namespace CRM_User.Domain.Model
 {

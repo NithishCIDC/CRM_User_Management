@@ -23,17 +23,19 @@ namespace CRM_User.infrastructure.Repository
             await _dbcontext.SaveChangesAsync();
         }
 
-        public async Task Delete(Guid id)
+        public async Task<bool> Delete(Guid id)
         {
             var entity = await _dbcontext.Set<T>().FindAsync(id);
             if(entity != null)
             {
                 _dbcontext.Set<T>().Remove(entity);
                 await _dbcontext.SaveChangesAsync();
+                return true;
             }
+            return false;
         }
 
-        public async Task<IEnumerable<T>> GetAll()
+        public async Task<List<T>> GetAll()
         {
             return await _dbcontext.Set<T>().ToListAsync();
         }
@@ -45,14 +47,20 @@ namespace CRM_User.infrastructure.Repository
         }
         public async Task<T?> GetByEmail(string email)
         {
-            var response = await _dbcontext.Set<T>().FindAsync(email);
+            var response = await _dbcontext.Set<T>().FirstOrDefaultAsync(e => EF.Property<string>(e, "Email") == email);
             return response;
         }
 
-        public async Task Update(T entity)
+        public async Task<bool> Update(T entity)
         {
-             _dbcontext.Set<T>().Update(entity);
-            await _dbcontext.SaveChangesAsync();
+            var user = await _dbcontext.Set<T>().FindAsync(typeof(T).GetProperty("Id")!.GetValue(entity));
+            if (user != null)
+            {
+                _dbcontext.Set<T>().Update(entity);
+                await _dbcontext.SaveChangesAsync();
+                return true;
+            }
+            return false;
         }
     }
 }
