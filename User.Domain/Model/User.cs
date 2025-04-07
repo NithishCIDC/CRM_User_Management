@@ -9,7 +9,7 @@ namespace CRM_User.Domain.Model
         public string? LastName { get; set; }
         public string? Password { get; set; }
         public int Role { get; set; }
-        public UserStatus Status { get; set; } = UserStatus.Active;
+        public UserStatus Status { get; set; }
         public Guid BranchId { get; set; }
         public Branch? Branch { get; set; }
     }
