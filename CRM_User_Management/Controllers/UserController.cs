@@ -5,6 +5,7 @@ using CRM_User.Domain.Model;
 using CRM_User.Application.DTO;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
+using Serilog;
 
 namespace CRM_User.Web.Controllers
 {
@@ -27,15 +28,19 @@ namespace CRM_User.Web.Controllers
                     if (user is null)
                     {
                         await _userService.CreateUser(entity);
+                        Log.Information("User created successfully");
                         return StatusCode(201, new ResponseSuccess { Message = "User created Successfully" });
 
                     }
+                    Log.Warning("User already exists");
                     return BadRequest(new ResponseError { Error = "User already exists" });
                 }
+                Log.Warning("Invalid User format");
                 return BadRequest(new ResponseError { Error = "Invalid Credential format" });
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "Error creating user");
                 return StatusCode(500, new ResponseError { Error = ex.Message });
             }
         }
@@ -51,12 +56,15 @@ namespace CRM_User.Web.Controllers
                 var user = await _userService.GetUserById(id);
                 if (user == null)
                 {
+                    Log.Warning("User not found");
                     return NotFound(new ResponseError { Error = "User not found" });
                 }
+                Log.Information("User found");
                 return Ok(new ResponseSuccess { Message = "User found", Data = user });
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "Error getting user");
                 return StatusCode(500, new ResponseError { Error = ex.Message });
             }
         }
@@ -72,12 +80,15 @@ namespace CRM_User.Web.Controllers
                 var users = await _userService.GetAllUser();
                 if (users == null)
                 {
+                    Log.Warning("No User found");
                     return NotFound(new ResponseError { Error = "No User found" });
                 }
+                Log.Information("Users found");
                 return Ok(new ResponseSuccess { Message = "User found", Data = users });
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "Error getting users");
                 return StatusCode(500, new ResponseError { Error = ex.Message });
             }
         }
@@ -93,17 +104,22 @@ namespace CRM_User.Web.Controllers
                 if (ModelState.IsValid)
                 {
                     var user = await _userService.GetUserById(entity.Id);
-                    if (user!=null)
+                    if (user != null)
                     {
-                        await _userService.UpdateUser(user,entity);
+
+                        await _userService.UpdateUser(user, entity);
+                        Log.Information("User updated successfully");
                         return Ok(new ResponseSuccess { Message = "User updated Successfully" });
                     }
+                    Log.Warning("User not found");
                     return NotFound(new ResponseError { Error = "User not found" });
                 }
+                Log.Warning("Invalid User format");
                 return BadRequest(new ResponseError { Error = "Invalid Credential format" });
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "Error updating user");
                 return StatusCode(500, new ResponseError { Error = ex.Message });
             }
         }
@@ -122,14 +138,18 @@ namespace CRM_User.Web.Controllers
                     if (user != null)
                     {
                         await _userService.DeleteUser(user);
+                        Log.Information("User deleted successfully");
                         return Ok(new ResponseSuccess { Message = "User deleted Successfully" });
                     }
+                    Log.Warning("User not found");
                     return NotFound(new ResponseError { Error = "User not found" });
                 }
+                Log.Warning("Invalid User format");
                 return BadRequest(new ResponseError { Error = "Invalid Credential format" });
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "Error deleting user");
                 return StatusCode(500, new ResponseError { Error = ex.Message });
             }
         }
