@@ -18,7 +18,7 @@ namespace CRM_User.Web.Controllers
         }
 
         [HttpPost()]
-        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateBranch([FromBody] AddBranchDTO branch)
@@ -32,7 +32,7 @@ namespace CRM_User.Web.Controllers
                     {
                         await _branchService.AddBranch(branch);
                         Log.Information("Branch Created Successfully");
-                        return Accepted(new ResponseSuccess { Message = "Branch is Created" });
+                        return StatusCode(201,new ResponseSuccess { Message = "Branch is Created" });
 
                     }
                     Log.Warning("Branch Already Exist");
