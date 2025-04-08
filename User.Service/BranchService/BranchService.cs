@@ -7,22 +7,31 @@ using Microsoft.AspNetCore.Http;
 
 namespace CRM_User.Service.BranchService
 {
-    public class BranchService(IUnitOfWork unitOfwork, IHttpContextAccessor httpContextAccessor) : IBranchService
+    public class BranchService : IBranchService
     {
-        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-        private readonly IUnitOfWork _unitOfWork = unitOfwork;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUnitOfWork _unitOfWork;
+        public BranchService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor)
+        {
+            _unitOfWork = unitOfWork;
+            _httpContextAccessor = httpContextAccessor;
+        }
 
         public async Task AddBranch(AddBranchDTO branchEntity)
         {
             Branch branch = branchEntity.Adapt<Branch>();
-            branch.Created_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)!.Value;
+            branch.Created_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
             branch.Created_At = DateTime.UtcNow.AddHours(5).AddMinutes(30);
             await _unitOfWork.BranchRepository.Add(branch);
+            await _unitOfWork.SaveAsync();
+
         }
 
         public async Task DeleteBranch(Branch entity)
         {
-            await _unitOfWork.BranchRepository.Delete(entity.Id);
+            _unitOfWork.BranchRepository.Delete(entity);
+            await _unitOfWork.SaveAsync();
+
         }
 
         public async Task<IEnumerable<Branch>> GetAll()
@@ -43,9 +52,10 @@ namespace CRM_User.Service.BranchService
         public async Task UpdateBranch(UpdateBranchDTO entity)
         {
             Branch branch = entity.Adapt<Branch>();
-            branch.Updated_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)!.Value;
+            branch.Updated_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
             branch.Updated_At = DateTime.UtcNow.AddHours(5).AddMinutes(30);
-            await _unitOfWork.BranchRepository.Update(branch);
+            _unitOfWork.BranchRepository.Update(branch);
+            await _unitOfWork.SaveAsync();
         }
     }
 }

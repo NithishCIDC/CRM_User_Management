@@ -20,28 +20,24 @@ namespace CRM_User.Web.Controllers
         }
 
         [HttpPost()]
-        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CreateOrganization(AddOrganizationDTO entity)
+        public async Task<IActionResult> CreateOrganization([FromBody] AddOrganizationDTO entity)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
                     var organization = _organizationservice.GetByEmail(entity.Email!);
-                    if (organization is not null)
-                    {
-                        Log.Warning("Organization Already Exist");
-                        return BadRequest(new ResponseError { Error = "Organization Already Exist" });
-                    }
-                    else
+                    if (organization is null)
                     {
                         await _organizationservice.AddOrganization(entity);
                         Log.Information("Organization Created Successfully");
-                        return Accepted(new ResponseSuccess { Message = "Organization Successfully Created" });
+                        return StatusCode(201,new ResponseSuccess { Message = "Organization Successfully Created" });
                     }
-
+                    Log.Warning("Organization Already Exist");
+                    return BadRequest(new ResponseError { Error = "Organization Already Exist" });
                 }
                 Log.Warning("Invalid Request");
                 return BadRequest(new ResponseError { Error = "Invalid Request" });
@@ -79,7 +75,7 @@ namespace CRM_User.Web.Controllers
 
         [HttpGet("{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetOrganization(Guid id)
         {
@@ -92,11 +88,11 @@ namespace CRM_User.Web.Controllers
                     return Ok(new ResponseSuccess { Message = "Data fetched Successfully", Data = organization });
                 }
                 Log.Warning("Organization Not Found");
-                return BadRequest(new ResponseError { Error = "Organization Not Found" });
+                return NotFound(new ResponseError { Error = "Organization Not Found" });
             }
             catch (Exception ex)
             {
-                Log.Error("Error in GetOrganization: " + ex);;
+                Log.Error("Error in GetOrganization: " + ex); ;
                 return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
@@ -104,6 +100,7 @@ namespace CRM_User.Web.Controllers
         [HttpPut()]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateOrganization(UpdateOraganizationDTO entity)
         {
@@ -116,10 +113,10 @@ namespace CRM_User.Web.Controllers
                     {
                         await _organizationservice.UpdateOrganization(entity);
                         Log.Information("Organization Updated Successfully");
-                        return Accepted(new ResponseSuccess { Message = "Organization Successfully Updated" });
+                        return StatusCode(202,new ResponseSuccess { Message = "Organization Successfully Updated" });
                     }
                     Log.Warning("Organization Not Found");
-                    return BadRequest(new ResponseError { Error = "Organization Not Found" });
+                    return NotFound(new ResponseError { Error = "Organization Not Found" });
                 }
                 Log.Warning("Invalid Request");
                 return BadRequest(new ResponseError { Error = "Invalid Request" });
@@ -134,6 +131,7 @@ namespace CRM_User.Web.Controllers
         [HttpDelete()]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteOrganization(Guid Id)
         {
@@ -147,7 +145,7 @@ namespace CRM_User.Web.Controllers
                     return Ok(new ResponseSuccess { Message = "Organization Successfully Deleted" });
                 }
                 Log.Warning("Organization Not Found");
-                return BadRequest(new ResponseError { Error = "Organization Not Found" });
+                return NotFound(new ResponseError { Error = "Organization Not Found" });
             }
             catch (Exception ex)
             {

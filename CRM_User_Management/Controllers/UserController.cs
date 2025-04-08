@@ -14,28 +14,29 @@ namespace CRM_User.Web.Controllers
     public class UserController(IUserService _userService) : ControllerBase
     {
         [HttpPost()]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateUser(AddUserDTO entity)
+        public async Task<IActionResult> CreateUser([FromBody] AddUserDTO entity)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
                     var user = await _userService.GetByEmail(entity.Email!);
-                    if (user is not null)
+                    if (user is null)
                     {
-                        await _userService.CreateUser(entity.Adapt<User>());
-                        return Accepted(new ResponseSuccess {Message = "User created Successfully" });
+                        await _userService.CreateUser(entity);
+                        return StatusCode(201, new ResponseSuccess { Message = "User created Successfully" });
+
                     }
-                    return BadRequest(new ResponseError {  Error = "User already exists" });
+                    return BadRequest(new ResponseError { Error = "User already exists" });
                 }
                 return BadRequest(new ResponseError { Error = "Invalid Credential format" });
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                return StatusCode(500, new ResponseError { Error = Ex.Message });
+                return StatusCode(500, new ResponseError { Error = ex.Message });
             }
         }
 
@@ -54,9 +55,9 @@ namespace CRM_User.Web.Controllers
                 }
                 return Ok(new ResponseSuccess { Message = "User found", Data = user });
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                return StatusCode(500, new ResponseError { Error = Ex.Message });
+                return StatusCode(500, new ResponseError { Error = ex.Message });
             }
         }
 
@@ -75,9 +76,9 @@ namespace CRM_User.Web.Controllers
                 }
                 return Ok(new ResponseSuccess { Message = "User found", Data = users });
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                return StatusCode(500, new ResponseError { Error = Ex.Message });
+                return StatusCode(500, new ResponseError { Error = ex.Message });
             }
         }
 
@@ -85,25 +86,25 @@ namespace CRM_User.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateUser(UpdateDTO entity)
+        public async Task<IActionResult> UpdateUser(UpdateUserDTO entity)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    bool result = await _userService.UpdateUser(entity.Adapt<User>());
-                    return result
-                    ? Ok(new ResponseSuccess {  Message = "User updated Successfully" })
-                    : BadRequest(new ResponseError { Error = "User Update Failed" });
+                    var user = await _userService.GetUserById(entity.Id);
+                    if (user != null)
+                    {
+                        await _userService.UpdateUser(entity);
+                        return Ok(new ResponseSuccess { Message = "User updated Successfully" });
+                    }
+                    return NotFound(new ResponseError { Error = "User not found" });
                 }
-                else
-                {
-                    return BadRequest(new ResponseError {  Error = "Invalid Credential format" });
-                }
+                return BadRequest(new ResponseError { Error = "Invalid Credential format" });
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                return StatusCode(500, new ResponseError { Error = Ex.Message });
+                return StatusCode(500, new ResponseError { Error = ex.Message });
             }
         }
 
@@ -117,19 +118,19 @@ namespace CRM_User.Web.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    bool result = await _userService.DeleteUser(id);
-                    return result
-                    ? Ok(new ResponseSuccess { Message = "User deleted Successfully" })
-                    : BadRequest(new ResponseError {  Error = "User Deletion Failed" });
+                    var user = await _userService.GetUserById(id);
+                    if (user != null)
+                    {
+                        await _userService.DeleteUser(user);
+                        return Ok(new ResponseSuccess { Message = "User deleted Successfully" });
+                    }
+                    return NotFound(new ResponseError { Error = "User not found" });
                 }
-                else
-                {
-                    return BadRequest(new ResponseError { Error = "Invalid Credential format" });
-                }
+                return BadRequest(new ResponseError { Error = "Invalid Credential format" });
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                return StatusCode(500, new ResponseError { Error = Ex.Message });
+                return StatusCode(500, new ResponseError { Error = ex.Message });
             }
         }
     }

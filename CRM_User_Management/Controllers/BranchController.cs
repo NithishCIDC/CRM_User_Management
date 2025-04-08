@@ -33,7 +33,7 @@ namespace CRM_User.Web.Controllers
                         await _branchService.AddBranch(branch);
                         Log.Information("Branch Created Successfully");
                         return Accepted(new ResponseSuccess { Message = "Branch is Created" });
-                       
+
                     }
                     Log.Warning("Branch Already Exist");
                     return BadRequest(new ResponseError { Error = "Branch already exists" });
@@ -106,9 +106,15 @@ namespace CRM_User.Web.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    await _branchService.UpdateBranch(branch);
-                    Log.Information("Branch Updated Successfully");
-                    return Accepted(new ResponseSuccess { Message = "Branch is Updated" });
+                    var response = await _branchService.GetById(branch.Id);
+                    if (response != null)
+                    {
+                        await _branchService.UpdateBranch(branch);
+                        Log.Information("Branch Updated Successfully");
+                        return Accepted(new ResponseSuccess { Message = "Branch is Updated" });
+                    }
+                    Log.Warning("No Branch Found");
+                    return NotFound(new ResponseError { Error = "No Branch Found" });
                 }
                 Log.Warning("Invalid Data");
                 return BadRequest(new ResponseError { Error = "Invalid Data" });
@@ -122,7 +128,7 @@ namespace CRM_User.Web.Controllers
 
         [HttpDelete()]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteBranch(Guid Id)
         {
@@ -136,7 +142,7 @@ namespace CRM_User.Web.Controllers
                     return Ok(new ResponseSuccess { Message = "Branch is Deleted" });
                 }
                 Log.Warning("No Branch Found");
-                return BadRequest(new ResponseError { Error = "No Branch Found" });
+                return NotFound(new ResponseError { Error = "No Branch Found" });
             }
             catch (Exception ex)
             {

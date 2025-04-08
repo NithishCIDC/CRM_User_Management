@@ -1,5 +1,7 @@
-﻿using CRM_User.Domain.Interface;
+﻿using CRM_User.Application.DTO;
+using CRM_User.Domain.Interface;
 using CRM_User.Domain.Model;
+using Mapster;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
@@ -17,16 +19,19 @@ namespace CRM_User.Service.UserService
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task CreateUser(User entity)
+        public async Task CreateUser(AddUserDTO entity)
         {
-            entity.Created_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)!.Value;
-            entity.Created_At = DateTime.UtcNow.AddHours(5).AddMinutes(30);
-            await _unitOfWork.UserRepository.Add(entity);
+            User user = entity.Adapt<User>();
+            user.Created_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
+            user.Created_At = DateTime.UtcNow.AddHours(5).AddMinutes(30);
+            await _unitOfWork.UserRepository.Add(user);
+            await _unitOfWork.SaveAsync();
         }
 
-        public async Task<bool> DeleteUser(Guid id)
+        public async Task DeleteUser(User user)
         {
-            return await _unitOfWork.UserRepository.Delete(id);
+            _unitOfWork.UserRepository.Delete(user);
+            await _unitOfWork.SaveAsync();
         }
 
         public async Task<List<User>> GetAllUser()
@@ -39,11 +44,13 @@ namespace CRM_User.Service.UserService
             return await _unitOfWork.UserRepository.GetById(id);
         }
 
-        public async Task<bool> UpdateUser(User entity)
+        public async Task UpdateUser(UpdateUserDTO entity)
         {
-            entity.Updated_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)!.Value;
-            entity.Updated_At = DateTime.UtcNow.AddHours(5).AddMinutes(30);
-            return await _unitOfWork.UserRepository.Update(entity);
+            User user = entity.Adapt<User>();
+            user.Updated_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
+            user.Updated_At = DateTime.UtcNow.AddHours(5).AddMinutes(30);
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.SaveAsync();
         }
         public async Task<User?> GetByEmail(string email)
         {

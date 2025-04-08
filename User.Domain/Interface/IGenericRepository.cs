@@ -13,7 +13,7 @@ namespace CRM_User.Domain.Interface
         Task<T?> GetById(Guid id);
         Task<T?> GetByEmail(string email);
         Task Add(T entity);
-        Task<bool> Update(T entity);
-        Task<bool> Delete(Guid id);
+        void Update(T entity);
+        void Delete(T id);
     }
 }

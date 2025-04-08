@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CRM_User.Application.DTO
 {
-    public class UpdateDTO
+    public class UpdateUserDTO
     {
         public Guid Id { get; set; }
         public string? FirstName { get; set; }

@@ -22,7 +22,9 @@ namespace CRM_User.infrastructure.Repository
         public IUserRepository UserRepository { get; private set; }
         public IBranchRepository BranchRepository { get; private set; }
         public IOrganizationRepository OrganizationRepository { get; private set; }
-
-        
+        public async Task SaveAsync()
+        {
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

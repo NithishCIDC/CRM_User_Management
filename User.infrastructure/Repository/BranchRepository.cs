@@ -6,7 +6,5 @@ using Microsoft.EntityFrameworkCore;
 namespace CRM_User.infrastructure.Repository
 {
     public class BranchRepository(ApplicationDbContext dbContext) : GenericRepository<Branch>(dbContext), IBranchRepository
-    {
-        
-    }
+    { }
 }
