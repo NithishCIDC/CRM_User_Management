@@ -93,9 +93,9 @@ namespace CRM_User.Web.Controllers
                 if (ModelState.IsValid)
                 {
                     var user = await _userService.GetUserById(entity.Id);
-                    if (user != null)
+                    if (user!=null)
                     {
-                        await _userService.UpdateUser(entity);
+                        await _userService.UpdateUser(user,entity);
                         return Ok(new ResponseSuccess { Message = "User updated Successfully" });
                     }
                     return NotFound(new ResponseError { Error = "User not found" });

@@ -100,16 +100,16 @@ namespace CRM_User.Web.Controllers
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateBranch([FromBody] UpdateBranchDTO branch)
+        public async Task<IActionResult> UpdateBranch([FromBody] UpdateBranchDTO entity)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    var response = await _branchService.GetById(branch.Id);
-                    if (response != null)
+                    var branch = await _branchService.GetById(entity.Id);
+                    if (branch != null)
                     {
-                        await _branchService.UpdateBranch(branch);
+                        await _branchService.UpdateBranch(branch,entity);
                         Log.Information("Branch Updated Successfully");
                         return Accepted(new ResponseSuccess { Message = "Branch is Updated" });
                     }
@@ -126,7 +126,7 @@ namespace CRM_User.Web.Controllers
             }
         }
 
-        [HttpDelete()]
+        [HttpDelete("{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

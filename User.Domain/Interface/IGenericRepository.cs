@@ -9,6 +9,7 @@ namespace CRM_User.Domain.Interface
 {
     public interface IGenericRepository<T> where T : class
     {
+        Task<bool> IsAny(Guid id);
         Task<List<T>> GetAll();
         Task<T?> GetById(Guid id);
         Task<T?> GetByEmail(string email);

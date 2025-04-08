@@ -49,9 +49,9 @@ namespace CRM_User.Service.BranchService
             return _unitOfWork.BranchRepository.GetById(id);
         }
 
-        public async Task UpdateBranch(UpdateBranchDTO entity)
+        public async Task UpdateBranch(Branch branch,UpdateBranchDTO entity)
         {
-            Branch branch = entity.Adapt<Branch>();
+            entity.Adapt(branch);
             branch.Updated_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
             branch.Updated_At = DateTime.UtcNow.AddHours(5).AddMinutes(30);
             _unitOfWork.BranchRepository.Update(branch);

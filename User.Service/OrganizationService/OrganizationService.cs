@@ -47,14 +47,13 @@ namespace CRM_User.Service.OrganizationService
             return await _unitOfwork.OrganizationRepository.GetById(id);
         }
 
-        public async Task UpdateOrganization(UpdateOraganizationDTO organization)
+        public async Task UpdateOrganization(Organization organization,UpdateOraganizationDTO entity)
         {
-            Organization org = organization.Adapt<Organization>();
-            org.Updated_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
-            org.Updated_At = DateTime.UtcNow.AddHours(5).AddMinutes(30);
-            _unitOfwork.OrganizationRepository.Update(org);
+            entity.Adapt(organization);
+            organization.Updated_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
+            organization.Updated_At = DateTime.UtcNow.AddHours(5).AddMinutes(30);
+            _unitOfwork.OrganizationRepository.Update(organization);
             await _unitOfwork.SaveAsync();
-
         }
     }
 }

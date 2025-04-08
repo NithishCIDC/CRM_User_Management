@@ -5,11 +5,12 @@ namespace CRM_User.Service.UserService
 {
     public interface IUserService
     {
+        Task<bool> IsUserExists(Guid Id);
         Task CreateUser(AddUserDTO entity);
         Task<User?> GetUserById(Guid id);
         Task<User?> GetByEmail(string email);
         Task<List<User>> GetAllUser();
-        Task UpdateUser(UpdateUserDTO entity);
+        Task UpdateUser(User user,UpdateUserDTO entity);
         Task DeleteUser(User user);
     }
 }

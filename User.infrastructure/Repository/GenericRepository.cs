@@ -14,6 +14,10 @@ namespace CRM_User.infrastructure.Repository
     {
         private readonly ApplicationDbContext _dbcontext = dbcontext;
 
+        public async Task<bool> IsAny(Guid id)
+        {
+            return await _dbcontext.Set<T>().AnyAsync(x=> EF.Property<Guid>(x, "Id") == id); 
+        }
         public async Task Add(T entity)
         {
             await _dbcontext.Set<T>().AddAsync(entity);
