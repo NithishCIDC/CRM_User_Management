@@ -8,12 +8,18 @@ using System.Threading.Tasks;
 
 namespace CRM_User.Application.DTO
 {
-    public class ResponseDTO
+    public class ResponseSuccess
     {
-        public string Message { get; set; }
-        public bool Success { get; set; }
+        public bool Success { get; } = true;
+        public string? Message { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<dynamic> Data { get; set; }
+        public dynamic? Data { get; set; }
+    }
+
+    public class ResponseError
+    {
+        public bool Success { get; } = false;
+        public string? Error { get; set; }
     }
 }

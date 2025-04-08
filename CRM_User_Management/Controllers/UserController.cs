@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using CRM_User.Service.UserService;
 using CRM_User.Domain.Model;
 using CRM_User.Application.DTO;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 
@@ -14,31 +13,37 @@ namespace CRM_User.Web.Controllers
     [Authorize]
     public class UserController(IUserService _userService) : ControllerBase
     {
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpPost()]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateUser(AddUserDTO entity)
+        public async Task<IActionResult> CreateUser([FromBody] AddUserDTO entity)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    await _userService.CreateUser(entity.Adapt<User>());
-                    return Ok(new ResponseDTO { Success = true, Message = "User created Successfully" });
+                    var user = await _userService.GetByEmail(entity.Email!);
+                    if (user is null)
+                    {
+                        await _userService.CreateUser(entity);
+                        return StatusCode(201, new ResponseSuccess { Message = "User created Successfully" });
+
+                    }
+                    return BadRequest(new ResponseError { Error = "User already exists" });
                 }
-                else
-                {
-                    return BadRequest(new ResponseDTO { Success = false, Message = "Invalid Credential format" });
-                }
+                return BadRequest(new ResponseError { Error = "Invalid Credential format" });
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                return StatusCode(500, new ResponseDTO { Success = false, Message = Ex.Message });
+                return StatusCode(500, new ResponseError { Error = ex.Message });
             }
         }
 
         [HttpGet("{id:Guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetUser(Guid id)
         {
             try
@@ -46,17 +51,20 @@ namespace CRM_User.Web.Controllers
                 var user = await _userService.GetUserById(id);
                 if (user == null)
                 {
-                    return NotFound(new ResponseDTO { Success = false, Message = "User not found" });
+                    return NotFound(new ResponseError { Error = "User not found" });
                 }
-                return Ok(new ResponseDTO { Success = true, Message = "User found", Data = [user] });
+                return Ok(new ResponseSuccess { Message = "User found", Data = user });
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                return StatusCode(500, new ResponseDTO { Success = false, Message = Ex.Message });
+                return StatusCode(500, new ResponseError { Error = ex.Message });
             }
         }
 
-        [HttpGet]
+        [HttpGet()]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetAllUser()
         {
             try
@@ -64,59 +72,65 @@ namespace CRM_User.Web.Controllers
                 var users = await _userService.GetAllUser();
                 if (users == null)
                 {
-                    return NotFound(new ResponseDTO { Success = false, Message = "No User found" });
+                    return NotFound(new ResponseError { Error = "No User found" });
                 }
-                return Ok(new ResponseDTO { Success = true, Message = "User found", Data = [users] });
+                return Ok(new ResponseSuccess { Message = "User found", Data = users });
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                return StatusCode(500, new ResponseDTO { Success = false, Message = Ex.Message });
+                return StatusCode(500, new ResponseError { Error = ex.Message });
             }
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateUser(UpdateDTO entity)
+        [HttpPut()]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateUser(UpdateUserDTO entity)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    bool result = await _userService.UpdateUser(entity.Adapt<User>());
-                    return result
-                    ? Ok(new ResponseDTO { Success = true, Message = "User updated Successfully" })
-                    : BadRequest(new ResponseDTO { Success = false, Message = "User Update Failed" });
+                    var user = await _userService.GetUserById(entity.Id);
+                    if (user!=null)
+                    {
+                        await _userService.UpdateUser(user,entity);
+                        return Ok(new ResponseSuccess { Message = "User updated Successfully" });
+                    }
+                    return NotFound(new ResponseError { Error = "User not found" });
                 }
-                else
-                {
-                    return BadRequest(new ResponseDTO { Success = false, Message = "Invalid Credential format" });
-                }
+                return BadRequest(new ResponseError { Error = "Invalid Credential format" });
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                return StatusCode(500, new ResponseDTO { Success = false, Message = Ex.Message });
+                return StatusCode(500, new ResponseError { Error = ex.Message });
             }
         }
 
         [HttpDelete("{id:Guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    bool result = await _userService.DeleteUser(id);
-                    return result
-                    ? Ok(new ResponseDTO { Success = true, Message = "User deleted Successfully" })
-                    : BadRequest(new ResponseDTO { Success = false, Message = "User Deletion Failed" });
+                    var user = await _userService.GetUserById(id);
+                    if (user != null)
+                    {
+                        await _userService.DeleteUser(user);
+                        return Ok(new ResponseSuccess { Message = "User deleted Successfully" });
+                    }
+                    return NotFound(new ResponseError { Error = "User not found" });
                 }
-                else
-                {
-                    return BadRequest(new ResponseDTO { Success = false, Message = "Invalid Credential format" });
-                }
+                return BadRequest(new ResponseError { Error = "Invalid Credential format" });
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                return StatusCode(500, new ResponseDTO { Success = false, Message = Ex.Message });
+                return StatusCode(500, new ResponseError { Error = ex.Message });
             }
         }
     }

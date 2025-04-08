@@ -11,6 +11,8 @@ namespace CRM_User.Domain.Model
         public int Role { get; set; }
         public UserStatus Status { get; set; }
         public Guid BranchId { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Branch? Branch { get; set; }
     }
 }

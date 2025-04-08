@@ -16,7 +16,8 @@ namespace CRM_User.Web.Controllers
         {
             _branchService = branchService;
         }
-        [HttpPost("CreateBranch")]
+
+        [HttpPost()]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -31,21 +32,23 @@ namespace CRM_User.Web.Controllers
                     {
                         await _branchService.AddBranch(branch);
                         Log.Information("Branch Created Successfully");
-                        return Accepted(new AuthResponseSuccess { Message = "Branch is Created"});
+                        return Accepted(new ResponseSuccess { Message = "Branch is Created" });
+
                     }
                     Log.Warning("Branch Already Exist");
-                    return BadRequest(new AuthResponseError { Error = "Branch already exists" });
+                    return BadRequest(new ResponseError { Error = "Branch already exists" });
                 }
                 Log.Warning("Invalid Data");
-                return BadRequest(new AuthResponseError { Error = "Invalid Data" });
+                return BadRequest(new ResponseError { Error = "Invalid Data" });
             }
             catch (Exception ex)
             {
                 Log.Error("Error in CreateBranch: " + ex);
-                return StatusCode(500, new AuthResponseError { Error = " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
-        [HttpGet]
+
+        [HttpGet()]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -57,18 +60,19 @@ namespace CRM_User.Web.Controllers
                 if (response != null)
                 {
                     Log.Information("All Branches Retrieved Successfully");
-                    return Ok(response);
+                    return Ok(new ResponseSuccess { Message = "Data fetched Successfully", Data = response });
                 }
                 Log.Warning("No Branch Found");
-                return BadRequest(new AuthResponseError { Error = "No Branch Found" });
+                return BadRequest(new ResponseError { Error = "No Branch Found" });
             }
             catch (Exception ex)
             {
                 Log.Error("Error in GetAllBranch: " + ex);
-                return StatusCode(500, new AuthResponseError { Error = " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
-        [HttpGet("GetBranchById")]
+
+        [HttpGet("{Id:Guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -80,43 +84,51 @@ namespace CRM_User.Web.Controllers
                 if (response != null)
                 {
                     Log.Information("Branch Retrieved Successfully");
-                    return Ok(response);
+                    return Ok(new ResponseSuccess { Message = "Data fetched Successfully", Data = response });
                 }
                 Log.Warning("No Branch Found");
-                return BadRequest(new AuthResponseError { Error = "No Branch Found" });
+                return BadRequest(new ResponseError { Error = "No Branch Found" });
             }
             catch (Exception ex)
             {
                 Log.Error("Error in GetBranchById: " + ex);
-                return StatusCode(500, new AuthResponseError { Error = " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
-        [HttpPut("UpdateBranch")]
+
+        [HttpPut()]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateBranch([FromBody] UpdateBranchDTO branch)
+        public async Task<IActionResult> UpdateBranch([FromBody] UpdateBranchDTO entity)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    await _branchService.UpdateBranch(branch);
-                    Log.Information("Branch Updated Successfully");
-                    return Accepted(new AuthResponseSuccess { Message = "Branch is Updated" });
+                    var branch = await _branchService.GetById(entity.Id);
+                    if (branch != null)
+                    {
+                        await _branchService.UpdateBranch(branch,entity);
+                        Log.Information("Branch Updated Successfully");
+                        return Accepted(new ResponseSuccess { Message = "Branch is Updated" });
+                    }
+                    Log.Warning("No Branch Found");
+                    return NotFound(new ResponseError { Error = "No Branch Found" });
                 }
                 Log.Warning("Invalid Data");
-                return BadRequest(new AuthResponseError { Error = "Invalid Data" });
+                return BadRequest(new ResponseError { Error = "Invalid Data" });
             }
             catch (Exception ex)
             {
                 Log.Error("Error in UpdateBranch: " + ex);
-                return StatusCode(500, new AuthResponseError { Error = " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
-        [HttpDelete("DeleteBranch")]
+
+        [HttpDelete("{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteBranch(Guid Id)
         {
@@ -127,15 +139,15 @@ namespace CRM_User.Web.Controllers
                 {
                     await _branchService.DeleteBranch(response);
                     Log.Information("Branch Deleted Successfully");
-                    return Ok(new AuthResponseSuccess { Message = "Branch is Deleted" });
+                    return Ok(new ResponseSuccess { Message = "Branch is Deleted" });
                 }
                 Log.Warning("No Branch Found");
-                return BadRequest(new AuthResponseError { Error = "No Branch Found" });
+                return NotFound(new ResponseError { Error = "No Branch Found" });
             }
             catch (Exception ex)
             {
                 Log.Error("Error in DeleteBranch: " + ex);
-                return StatusCode(500, new AuthResponseError { Error = " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
     }

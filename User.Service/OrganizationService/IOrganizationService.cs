@@ -14,7 +14,7 @@ namespace CRM_User.Service.OrganizationService
         Task<Organization?> GetByEmail(string email);
         Task<IEnumerable<Organization>> GetAll();
         Task<Organization?> GetById(Guid id);
-        Task UpdateOrganization(UpdateOraganizationDTO organization);
+        Task UpdateOrganization(Organization org,UpdateOraganizationDTO organization);
         Task DeleteOrganization(Organization entity);
     }
 }

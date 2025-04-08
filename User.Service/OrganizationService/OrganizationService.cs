@@ -12,7 +12,7 @@ namespace CRM_User.Service.OrganizationService
         private readonly IUnitOfWork _unitOfwork;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public OrganizationService(IUnitOfWork unitOfwork,IHttpContextAccessor httpContextAccessor)
+        public OrganizationService(IUnitOfWork unitOfwork, IHttpContextAccessor httpContextAccessor)
         {
             _unitOfwork = unitOfwork;
             _httpContextAccessor = httpContextAccessor;
@@ -20,16 +20,18 @@ namespace CRM_User.Service.OrganizationService
         public async Task AddOrganization(AddOrganizationDTO org)
         {
             Organization organization = org.Adapt<Organization>();
-            organization.Created_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)!.Value; ;
+            organization.Created_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value; ;
             organization.Created_At = DateTime.UtcNow.AddHours(5).AddMinutes(30);
             await _unitOfwork.OrganizationRepository.Add(organization);
+            await _unitOfwork.SaveAsync();
+
         }
 
         public async Task DeleteOrganization(Organization entity)
         {
-            await _unitOfwork.OrganizationRepository.Delete(entity.Id); 
+            _unitOfwork.OrganizationRepository.Delete(entity);
+            await _unitOfwork.SaveAsync();
         }
-
         public async Task<IEnumerable<Organization>> GetAll()
         {
             return await _unitOfwork.OrganizationRepository.GetAll();
@@ -37,20 +39,21 @@ namespace CRM_User.Service.OrganizationService
 
         public async Task<Organization?> GetByEmail(string email)
         {
-           return await _unitOfwork.OrganizationRepository.GetByEmail(email);
+            return await _unitOfwork.OrganizationRepository.GetByEmail(email);
         }
 
         public async Task<Organization?> GetById(Guid id)
         {
-           return await _unitOfwork.OrganizationRepository.GetById(id);
+            return await _unitOfwork.OrganizationRepository.GetById(id);
         }
 
-        public async Task UpdateOrganization(UpdateOraganizationDTO organization)
+        public async Task UpdateOrganization(Organization organization,UpdateOraganizationDTO entity)
         {
-            Organization org = organization.Adapt<Organization>();
-            org.Updated_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)!.Value;
-            org.Updated_At = DateTime.UtcNow.AddHours(5).AddMinutes(30);
-            await _unitOfwork.OrganizationRepository.Update(org);
+            entity.Adapt(organization);
+            organization.Updated_By = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
+            organization.Updated_At = DateTime.UtcNow.AddHours(5).AddMinutes(30);
+            _unitOfwork.OrganizationRepository.Update(organization);
+            await _unitOfwork.SaveAsync();
         }
     }
 }

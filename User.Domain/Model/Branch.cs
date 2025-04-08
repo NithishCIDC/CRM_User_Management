@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace CRM_User.Domain.Model
@@ -14,7 +15,11 @@ namespace CRM_User.Domain.Model
         public string? State { get; set; }
         public string? Country { get; set; }
         public Guid OrganizationId { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Organization? Organization { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public ICollection<User>? Users { get; set; }
     }
 }

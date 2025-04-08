@@ -1,13 +1,16 @@
-﻿using CRM_User.Domain.Model;
+﻿using CRM_User.Application.DTO;
+using CRM_User.Domain.Model;
 
 namespace CRM_User.Service.UserService
 {
     public interface IUserService
     {
-        Task CreateUser(User entity);
+        Task<bool> IsUserExists(Guid Id);
+        Task CreateUser(AddUserDTO entity);
         Task<User?> GetUserById(Guid id);
+        Task<User?> GetByEmail(string email);
         Task<List<User>> GetAllUser();
-        Task<bool> UpdateUser(User entity);
-        Task<bool> DeleteUser(Guid id);
+        Task UpdateUser(User user,UpdateUserDTO entity);
+        Task DeleteUser(User user);
     }
 }

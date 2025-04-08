@@ -11,5 +11,6 @@ namespace CRM_User.Domain.Interface
         IUserRepository UserRepository { get; }
         IBranchRepository BranchRepository { get; }
         IOrganizationRepository OrganizationRepository { get; }
+        Task SaveAsync();
     }
 }

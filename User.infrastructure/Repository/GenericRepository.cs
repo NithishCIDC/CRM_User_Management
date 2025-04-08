@@ -10,29 +10,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CRM_User.infrastructure.Repository
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class
+    public class GenericRepository<T>(ApplicationDbContext dbcontext) : IGenericRepository<T> where T : class
     {
-        private readonly ApplicationDbContext _dbcontext;
-        public GenericRepository(ApplicationDbContext dbcontext)
+        private readonly ApplicationDbContext _dbcontext = dbcontext;
+
+        public async Task<bool> IsAny(Guid id)
         {
-            _dbcontext = dbcontext;
+            return await _dbcontext.Set<T>().AnyAsync(x=> EF.Property<Guid>(x, "Id") == id); 
         }
         public async Task Add(T entity)
         {
             await _dbcontext.Set<T>().AddAsync(entity);
-            await _dbcontext.SaveChangesAsync();
         }
 
-        public async Task<bool> Delete(Guid id)
+        public void Delete(T entity)
         {
-            var entity = await _dbcontext.Set<T>().FindAsync(id);
-            if(entity != null)
-            {
-                _dbcontext.Set<T>().Remove(entity);
-                await _dbcontext.SaveChangesAsync();
-                return true;
-            }
-            return false;
+            _dbcontext.Set<T>().Remove(entity);
         }
 
         public async Task<List<T>> GetAll()
@@ -42,25 +35,16 @@ namespace CRM_User.infrastructure.Repository
 
         public async Task<T?> GetById(Guid id)
         {
-            var response = await _dbcontext.Set<T>().FindAsync(id);
-            return response;
+            return await _dbcontext.Set<T>().FindAsync(id);
         }
         public async Task<T?> GetByEmail(string email)
         {
-            var response = await _dbcontext.Set<T>().FirstOrDefaultAsync(e => EF.Property<string>(e, "Email") == email);
-            return response;
+            return await _dbcontext.Set<T>().FirstOrDefaultAsync(e => EF.Property<string>(e, "Email") == email);
         }
 
-        public async Task<bool> Update(T entity)
+        public void Update(T entity)
         {
-            var user = await _dbcontext.Set<T>().FindAsync(typeof(T).GetProperty("Id")!.GetValue(entity));
-            if (user != null)
-            {
-                _dbcontext.Set<T>().Update(entity);
-                await _dbcontext.SaveChangesAsync();
-                return true;
-            }
-            return false;
+            _dbcontext.Set<T>().Update(entity);
         }
     }
 }

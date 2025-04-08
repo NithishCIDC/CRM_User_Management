@@ -1,5 +1,6 @@
 ﻿using CRM_User.Application.DTO;
 using CRM_User.Service.OrganizationService;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
@@ -12,48 +13,44 @@ namespace CRM_User.Web.Controllers
     [Authorize]
     public class OrganizationController : ControllerBase
     {
-        private readonly IOrganizationService _organizationservice;
+        private readonly IOrganizationService _organizationService;
 
         public OrganizationController(IOrganizationService organizationservice)
         {
-            _organizationservice = organizationservice;
+            _organizationService = organizationservice;
         }
 
-        [HttpPost("CreateOrganization")]
-        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [HttpPost()]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CreateOrganization(AddOrganizationDTO entity)
+        public async Task<IActionResult> CreateOrganization([FromBody] AddOrganizationDTO entity)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    var organization = _organizationservice.GetByEmail(entity.Email!);
-                    if (organization is not null)
+                    var organization = await _organizationService.GetByEmail(entity.Email!);
+                    if (organization is null)
                     {
-                        Log.Warning("Organization Already Exist");
-                        return BadRequest(new AuthResponseError { Error = "Organization Already Exist" });
-                    }
-                    else
-                    {
-                        await _organizationservice.AddOrganization(entity);
+                        await _organizationService.AddOrganization(entity);
                         Log.Information("Organization Created Successfully");
-                        return Accepted(new AuthResponseSuccess { Message = "Organization Successfully Created" });
+                        return StatusCode(201,new ResponseSuccess { Message = "Organization Successfully Created" });
                     }
-
+                    Log.Warning("Organization Already Exist");
+                    return BadRequest(new ResponseError { Error = "Organization Already Exist" });
                 }
                 Log.Warning("Invalid Request");
-                return BadRequest(new AuthResponseError { Error = "Invalid Request" });
+                return BadRequest(new ResponseError { Error = "Invalid Request" });
             }
             catch (Exception ex)
             {
                 Log.Error("Error in CreateOrganization: " + ex);
-                return StatusCode(500, new AuthResponseError { Error = " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
 
-        [HttpGet]
+        [HttpGet()]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -61,49 +58,50 @@ namespace CRM_User.Web.Controllers
         {
             try
             {
-                var organization = await _organizationservice.GetAll();
-                if(organization != null)
+                var organizations = await _organizationService.GetAll();
+                if (organizations != null)
                 {
                     Log.Information("All Organizations Retrieved Successfully");
-                    return Ok(organization);
+                    return Ok(new ResponseSuccess { Message = "Data fetched Successfully", Data = organizations });
                 }
                 Log.Warning("No Organization Found");
-                return BadRequest(new AuthResponseError { Error = "No Organization Found" });
+                return BadRequest(new ResponseError { Error = "No Organization Found" });
             }
             catch (Exception ex)
             {
                 Log.Error("Error in AllOrganization: " + ex);
-                return StatusCode(500, new AuthResponseError { Error = " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
 
-        [HttpGet("GetOrganization/{id}")]
+        [HttpGet("{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetOrganization(Guid id)
         {
             try
             {
-                var organization = await _organizationservice.GetById(id);
+                var organization = await _organizationService.GetById(id);
                 if (organization != null)
                 {
                     Log.Information("Organization Retrieved Successfully");
-                    return Ok(organization);
+                    return Ok(new ResponseSuccess { Message = "Data fetched Successfully", Data = organization });
                 }
                 Log.Warning("Organization Not Found");
-                return BadRequest(new AuthResponseError { Error = "Organization Not Found" });
+                return NotFound(new ResponseError { Error = "Organization Not Found" });
             }
             catch (Exception ex)
             {
-                Log.Error("Error in GetOrganization: " + ex);
-                return StatusCode(500, new AuthResponseError { Error = " Internal Server Error" });
+                Log.Error("Error in GetOrganization: " + ex); ;
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
 
-        [HttpPut("UpdateOrganization")]
+        [HttpPut()]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateOrganization(UpdateOraganizationDTO entity)
         {
@@ -111,48 +109,49 @@ namespace CRM_User.Web.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var organization = await _organizationservice.GetById(entity.Id);
+                    var organization = await _organizationService.GetById(entity.Id);
                     if (organization is not null)
                     {
-                        await _organizationservice.UpdateOrganization(entity);
+                        await _organizationService.UpdateOrganization(organization,entity);
                         Log.Information("Organization Updated Successfully");
-                        return Accepted(new AuthResponseSuccess { Message = "Organization Successfully Updated" });
+                        return StatusCode(202,new ResponseSuccess { Message = "Organization Successfully Updated" });
                     }
                     Log.Warning("Organization Not Found");
-                    return BadRequest(new AuthResponseError { Error = "Organization Not Found" });
+                    return NotFound(new ResponseError { Error = "Organization Not Found" });
                 }
                 Log.Warning("Invalid Request");
-                return BadRequest(new AuthResponseError { Error = "Invalid Request" });
+                return BadRequest(new ResponseError { Error = "Invalid Request" });
             }
             catch (Exception ex)
             {
                 Log.Error("Error in UpdateOrganization: " + ex);
-                return StatusCode(500, new AuthResponseError { Error = " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
 
-        [HttpDelete("DeleteOrganization")]
+        [HttpDelete("{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteOrganization(Guid Id)
         {
             try
             {
-                var organization = await _organizationservice.GetById(Id);
+                var organization = await _organizationService.GetById(Id);
                 if (organization is not null)
                 {
-                    await _organizationservice.DeleteOrganization(organization);
+                    await _organizationService.DeleteOrganization(organization);
                     Log.Information("Organization Deleted Successfully");
-                    return Ok(new AuthResponseSuccess { Message = "Organization Successfully Deleted" });
+                    return Ok(new ResponseSuccess { Message = "Organization Successfully Deleted" });
                 }
                 Log.Warning("Organization Not Found");
-                return BadRequest(new AuthResponseError { Error = "Organization Not Found" });
+                return NotFound(new ResponseError { Error = "Organization Not Found" });
             }
             catch (Exception ex)
             {
                 Log.Error("Error in DeleteOrganization: " + ex);
-                return StatusCode(500, new AuthResponseError { Error = " Internal Server Error" });
+                return StatusCode(500, new ResponseError { Error = ex + " Internal Server Error" });
             }
         }
     }
