@@ -4,6 +4,7 @@ using CRM_User.infrastructure.Repository;
 using CRM_User.Service.BranchService;
 using CRM_User.Service.OrganizationService;
 using CRM_User.Service.UserService;
+using CRM_User.Web.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -90,6 +91,8 @@ app.UseHttpsRedirection();
 app.UseCors("CORS_Policy");
 
 app.UseAuthentication();
+
+//app.UseMiddleware<PermissionMiddleware>();
 
 app.UseAuthorization();
 

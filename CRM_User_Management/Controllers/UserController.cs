@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using CRM_User.Service.UserService;
-using CRM_User.Domain.Model;
 using CRM_User.Application.DTO;
-using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Serilog;
+using CRM_User.Web.Middleware;
 
 namespace CRM_User.Web.Controllers
 {
@@ -18,6 +16,7 @@ namespace CRM_User.Web.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HasPermission("User.Create")]
         public async Task<IActionResult> CreateUser([FromBody] AddUserDTO entity)
         {
             try
@@ -49,6 +48,7 @@ namespace CRM_User.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HasPermission("User.GetById")]
         public async Task<IActionResult> GetUser(Guid id)
         {
             try
@@ -73,6 +73,7 @@ namespace CRM_User.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HasPermission("User.GetAll")]
         public async Task<IActionResult> GetAllUser()
         {
             try
@@ -97,6 +98,7 @@ namespace CRM_User.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HasPermission("User.Update")]
         public async Task<IActionResult> UpdateUser(UpdateUserDTO entity)
         {
             try
@@ -128,6 +130,7 @@ namespace CRM_User.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HasPermission("User.Delete")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
             try

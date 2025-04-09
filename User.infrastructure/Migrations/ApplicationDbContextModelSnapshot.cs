@@ -44,6 +44,7 @@ namespace CRM_User.infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<Guid>("OrganizationId")
@@ -64,12 +65,11 @@ namespace CRM_User.infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
-                        .IsUnique()
-                        .HasFilter("[Email] IS NOT NULL");
+                        .IsUnique();
 
                     b.HasIndex("OrganizationId");
 
-                    b.ToTable("Branch");
+                    b.ToTable("Branches");
                 });
 
             modelBuilder.Entity("CRM_User.Domain.Model.Organization", b =>
@@ -91,6 +91,7 @@ namespace CRM_User.infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsActive")
@@ -120,10 +121,44 @@ namespace CRM_User.infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
-                        .IsUnique()
-                        .HasFilter("[Email] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("Organization");
+                });
+
+            modelBuilder.Entity("CRM_User.Domain.Model.Permissions", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Permission")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Permissions");
+                });
+
+            modelBuilder.Entity("CRM_User.Domain.Model.RolePermission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PermissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("CRM_User.Domain.Model.User", b =>
@@ -142,6 +177,7 @@ namespace CRM_User.infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("FirstName")
@@ -156,8 +192,8 @@ namespace CRM_User.infrastructure.Migrations
                     b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -173,19 +209,18 @@ namespace CRM_User.infrastructure.Migrations
                     b.HasIndex("BranchId");
 
                     b.HasIndex("Email")
-                        .IsUnique()
-                        .HasFilter("[Email] IS NOT NULL");
+                        .IsUnique();
+
+                    b.HasIndex("RoleId");
 
                     b.ToTable("Users");
                 });
 
             modelBuilder.Entity("CRM_User.Domain.Model.UserRoles", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uniqueidentifier");
@@ -211,6 +246,25 @@ namespace CRM_User.infrastructure.Migrations
                     b.Navigation("Organization");
                 });
 
+            modelBuilder.Entity("CRM_User.Domain.Model.RolePermission", b =>
+                {
+                    b.HasOne("CRM_User.Domain.Model.Permissions", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CRM_User.Domain.Model.UserRoles", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("CRM_User.Domain.Model.User", b =>
                 {
                     b.HasOne("CRM_User.Domain.Model.Branch", "Branch")
@@ -219,7 +273,15 @@ namespace CRM_User.infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CRM_User.Domain.Model.UserRoles", "Role")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Branch");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("CRM_User.Domain.Model.UserRoles", b =>
@@ -243,6 +305,18 @@ namespace CRM_User.infrastructure.Migrations
                     b.Navigation("Branches");
 
                     b.Navigation("Roles");
+                });
+
+            modelBuilder.Entity("CRM_User.Domain.Model.Permissions", b =>
+                {
+                    b.Navigation("RolePermissions");
+                });
+
+            modelBuilder.Entity("CRM_User.Domain.Model.UserRoles", b =>
+                {
+                    b.Navigation("RolePermissions");
+
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

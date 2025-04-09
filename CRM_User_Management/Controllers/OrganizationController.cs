@@ -1,6 +1,6 @@
 ﻿using CRM_User.Application.DTO;
 using CRM_User.Service.OrganizationService;
-using Mapster;
+using CRM_User.Web.Middleware;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
@@ -24,6 +24,7 @@ namespace CRM_User.Web.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [HasPermission("Org.Create")]
         public async Task<IActionResult> CreateOrganization([FromBody] AddOrganizationDTO entity)
         {
             try
@@ -54,7 +55,8 @@ namespace CRM_User.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> AllOrganization()
+        [HasPermission("Org.GetAll")]
+        public async Task<IActionResult> GetAllOrganization()
         {
             try
             {
@@ -78,7 +80,8 @@ namespace CRM_User.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetOrganization(Guid id)
+        [HasPermission("Org.GetById")]
+        public async Task<IActionResult> GetOrganizationById(Guid id)
         {
             try
             {
@@ -103,6 +106,7 @@ namespace CRM_User.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [HasPermission("Org.Update")]
         public async Task<IActionResult> UpdateOrganization(UpdateOraganizationDTO entity)
         {
             try
@@ -134,6 +138,7 @@ namespace CRM_User.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [HasPermission("Org.Delete")]
         public async Task<IActionResult> DeleteOrganization(Guid Id)
         {
             try
